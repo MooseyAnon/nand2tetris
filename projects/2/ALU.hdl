@@ -41,5 +41,38 @@ CHIP ALU {
         ng;      // if (out < 0)  equals 1, else 0
 
     PARTS:
-    //// Replace this comment with your code.
+    // set x and y to 0, if needed
+    Mux16(a=x, b=false, sel=zx, out=zerox);
+    Mux16(a=y, b=false, sel=zy, out=zeroy);
+
+    // !x and !y
+    Not16(in=zerox, out=notx);
+    Not16(in=zeroy, out=noty);
+
+    Mux16(a=zerox, b=notx, sel=nx, out=initx);
+    Mux16(a=zeroy, b=noty, sel=ny, out=inity);
+
+    // chose between x + y and x & y based on f
+    // if (f == 1)  sets out = x + y, else out = x & y
+    And16(a=initx, b=inity, out=xandy);
+    Add16(a=initx, b=inity, out=xplusy);
+
+    Mux16(a=xandy, b=xplusy, sel=f, out=fout);
+
+    // set out and ng
+    // ng - we can use the fact that most negative numbers will start with 1
+    Not16(in=fout, out=notf);
+    // syntax below comes from here[1].
+    Mux16(a=fout, b=notf, sel=no, out[0..7]=p1, out[8..15]=p2, out[15]=ng, out=out);
+
+    // zr - if (out == 0) equals 1, else 0
+    Or8Way(in=p1, out=or8way1);  // this will be 0 if all value is 0
+    Or8Way(in=p2, out=or8way2);
+
+    Or(a=or8way1, b=or8way2, out=zrtmp);
+
+    Not(in=zrtmp, out=zr); // invert result
 }
+
+
+// [1] https://www.reddit.com/r/NandToTetris/comments/pzlf93/comment/husku2y/
