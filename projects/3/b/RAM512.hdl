@@ -13,5 +13,19 @@ CHIP RAM512 {
     OUT out[16];
 
     PARTS:
-    //// Replace this comment with your code.
+    // select ram block to activate
+    DMux8Way(in=load, sel=address[6..8], a=a, b=b, c=c, d=d, e=e, f=f, g=g, h=h);
+
+    // write to register
+    RAM64(in=in, load=a, address=address[0..5], out=o0);
+    RAM64(in=in, load=b, address=address[0..5], out=o1);
+    RAM64(in=in, load=c, address=address[0..5], out=o2);
+    RAM64(in=in, load=d, address=address[0..5], out=o3);
+    RAM64(in=in, load=e, address=address[0..5], out=o4);
+    RAM64(in=in, load=f, address=address[0..5], out=o5);
+    RAM64(in=in, load=g, address=address[0..5], out=o6);
+    RAM64(in=in, load=h, address=address[0..5], out=o7);
+
+    // read from register
+    Mux8Way16(a=o0, b=o1, c=o2, d=o3, e=o4, f=o5, g=o6, h=o7, sel=address[6..8], out=out);
 }

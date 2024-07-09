@@ -14,5 +14,18 @@ CHIP PC {
     OUT out[16];
     
     PARTS:
-    //// Replace this comment with your code.
+    // increment previous value (tmpout i.e. [t-1]) - if needed
+    Inc16(in=tmpout, out=prevplus1);
+    Mux16(a=tmpout, b=prevplus1, sel=inc, out=incout);
+
+    // write new value - if needed
+    Mux16(a=incout, b=in, sel=load, out=loadout);
+
+    // reset, if needed - x & not(x) == 0
+    Not16(in=in, out=notin);
+    And16(a=in, b=notin, out=zeroin);
+    Mux16(a=loadout, b=false, sel=reset, out=resetout);
+
+    // save state of chip - Note this also hold the final value
+    Register(in=resetout, load=true, out=tmpout, out=out);
 }
